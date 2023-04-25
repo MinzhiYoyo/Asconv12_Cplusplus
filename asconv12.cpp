@@ -28,9 +28,6 @@ namespace ASCONV12 {
 	// Asconv12
 	Asconv12::Asconv12(){}
 	void Asconv12::encryption(const ascon_data& plaintext, const ascon_data& associatedData, ascon_data& ciphertext, const ascon_128& keys, const ascon_128& nonce, ascon_128& T) {
-		ascon_padding P;
-		ascon_padding C;
-		ascon_padding A;
 
 		ascon_state S;
 
@@ -38,28 +35,24 @@ namespace ASCONV12 {
 		// 初始化
 		Asconv12::Initalization(S, keys, nonce);
 		// 处理关联数据
-		Asconv12::ProcessingAssociatedData(S, A, associatedData);
+		Asconv12::ProcessingAssociatedData(S, associatedData);
 		// 处理明文
-		Asconv12::ProcessingPlaintext(S, P, C, plaintext, ciphertext);
+		Asconv12::ProcessingPlaintext(S, plaintext, ciphertext);
 		// 终止化
 		Asconv12::Finalization(S, keys, T);
 	}
 
 
 	bool Asconv12::decryption(const ascon_data& ciphertext, const ascon_data& assonciatedData, ascon_data& plaintext, const ascon_128& keys, const ascon_128& nonce, ascon_128& T) {
-		ascon_padding P;
-		ascon_padding C;
-		ascon_padding A;
-
 		ascon_state S;
 
 
 		// 初始化
 		Asconv12::Initalization(S, keys, nonce);
 		// 处理关联数据
-		Asconv12::ProcessingAssociatedData(S, A, assonciatedData);
+		Asconv12::ProcessingAssociatedData(S, assonciatedData);
 		// 处理密文
-		Asconv12::ProcessingCiphertext(S, C, P, ciphertext, plaintext);
+		Asconv12::ProcessingCiphertext(S, ciphertext, plaintext);
 		// 终止化
 		ascon_128 Tout;
 		bool flag = Asconv12::Finalization(S, keys, Tout, T);
@@ -80,7 +73,8 @@ namespace ASCONV12 {
 		keys.xorwith64(S[3], S[4]);
 	}
 	// 处理关联数据
-	void Asconv12::ProcessingAssociatedData(ascon_state& S, ascon_padding& A, const ascon_data& associatedData) {
+	void Asconv12::ProcessingAssociatedData(ascon_state& S, const ascon_data& associatedData) {
+		ascon_padding A;
 		padding(associatedData, A);
 		if (!A.empty()) {
 			for (int i = 0; i < A.size(); i++) {
@@ -91,10 +85,10 @@ namespace ASCONV12 {
 		}
 	}
 	// 处理明文
-	void Asconv12::ProcessingPlaintext(ascon_state& S, ascon_padding& P, ascon_padding& C,const ascon_data& plaintext, ascon_data& ciphertext) {
+	void Asconv12::ProcessingPlaintext(ascon_state& S, const ascon_data& plaintext, ascon_data& ciphertext) {
+		ascon_padding P;
 		padding(plaintext, P);
-		if (!C.empty()) C.clear();
-		C.resize(P.size());
+		ascon_padding C(P.size(), 0);
 		size_t l = plaintext.size() * 8 % Asconv12::r;
 		for (int i = 0; i < P.size(); i++) {
 			C[i] = S[0] ^ P[i];
@@ -111,10 +105,10 @@ namespace ASCONV12 {
 		Asconv12::transform(C, ciphertext, l);
 	}
 	// 处理密文
-	void Asconv12::ProcessingCiphertext(ascon_state& S, ascon_padding& C, ascon_padding& P,const ascon_data& ciphertext, ascon_data& plaintext) {
+	void Asconv12::ProcessingCiphertext(ascon_state& S,const ascon_data& ciphertext, ascon_data& plaintext) {
+		ascon_padding C; 
 		padding(ciphertext, C, false);
-		if (!P.empty()) P.clear();
-		P.resize(C.size());
+		ascon_padding P(C.size(), 0);
 		for (int i = 0; i < C.size()-1; i++) {
 			P[i] = S[0] ^ C[i];
 			S[0] = C[i];

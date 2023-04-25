@@ -43,9 +43,9 @@ namespace ASCONV12 {
 
 		// ¹ý³Ì
 		static void Initalization(ascon_state& S, const ascon_128& keys, const ascon_128& nonce);
-		static void ProcessingAssociatedData(ascon_state& S, ascon_padding& A, const ascon_data& associatedData);
-		static void ProcessingPlaintext(ascon_state& S, ascon_padding& P, ascon_padding& C, const ascon_data& plaintext, ascon_data& ciphertext);
-		static void ProcessingCiphertext(ascon_state& S, ascon_padding& C, ascon_padding& P, const ascon_data& ciphertext, ascon_data& plaintext);
+		static void ProcessingAssociatedData(ascon_state& S, const ascon_data& associatedData);
+		static void ProcessingPlaintext(ascon_state& S, const ascon_data& plaintext, ascon_data& ciphertext);
+		static void ProcessingCiphertext(ascon_state& S, const ascon_data& ciphertext, ascon_data& plaintext);
 		static bool Finalization(ascon_state& S, const ascon_128& keys, ascon_128& T, const ascon_128& Ttmp = { 0, 0 });
 
 		static void transform(const ascon_padding& in, ascon_data& out, size_t l);
