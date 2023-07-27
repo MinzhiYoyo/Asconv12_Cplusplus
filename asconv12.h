@@ -11,8 +11,10 @@ namespace ASCONV12 {
 
 	using ascon_state = std::vector<ascon_64>;
 	using ascon_padding = std::vector<ascon_64>;
+	using ascon_hash = std::vector<ascon_64>;
 
 	using permutations_type = int;
+
 
 
 
@@ -34,6 +36,7 @@ namespace ASCONV12 {
 		Asconv12();
 		static void encryption(const ascon_data& plaintext, const ascon_data& associatedData, ascon_data& ciphertext, const ascon_128& keys, const ascon_128& nonce, ascon_128& T);
 		static bool decryption(const ascon_data& ciphertext, const ascon_data& asconciatedData, ascon_data& plaintext, const ascon_128& keys, const ascon_128& nonce, ascon_128& T);
+		static void hash(const ascon_data& message, ascon_hash& hashVal);
 	private:
 		static void padding(const ascon_data& data, ascon_padding& out, bool need = true);
 		static void permutations(permutations_type t, ascon_state &S);
@@ -53,6 +56,10 @@ namespace ASCONV12 {
 		// 定义常量数据
 		static const permutations_type a = 12;
 		static const permutations_type b = 6;
+
+		static const permutations_type hash_a = 12;
+		static const permutations_type hash_b = 12;
+		static const int hash_length = 256;
 
 		static const int k = 128;
 		static const int r = 64;

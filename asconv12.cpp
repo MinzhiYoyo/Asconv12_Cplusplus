@@ -1,5 +1,4 @@
 ﻿#include "asconv12.h"
-
 namespace ASCONV12 {
 	ascon_128::ascon_128():high(0), low(0) {
 		
@@ -27,6 +26,8 @@ namespace ASCONV12 {
 
 	// Asconv12
 	Asconv12::Asconv12(){}
+
+	// 加密
 	void Asconv12::encryption(const ascon_data& plaintext, const ascon_data& associatedData, ascon_data& ciphertext, const ascon_128& keys, const ascon_128& nonce, ascon_128& T) {
 
 		ascon_state S;
@@ -42,7 +43,7 @@ namespace ASCONV12 {
 		Asconv12::Finalization(S, keys, T);
 	}
 
-
+	// 解密
 	bool Asconv12::decryption(const ascon_data& ciphertext, const ascon_data& assonciatedData, ascon_data& plaintext, const ascon_128& keys, const ascon_128& nonce, ascon_128& T) {
 		ascon_state S;
 
@@ -58,6 +59,47 @@ namespace ASCONV12 {
 		bool flag = Asconv12::Finalization(S, keys, Tout, T);
 
 		return flag;
+	}
+
+	// 计算哈希
+	void Asconv12::hash(const ascon_data& message, ascon_hash& hashVal) {
+		// 哈希过程初始化
+		ascon_state S;
+		S.resize(5);
+		S[0] = 0x00400c0000000100;
+		S[1] = 0;
+		S[2] = 0;
+		S[3] = 0;
+		S[4] = 0;
+		Asconv12::permutations(Asconv12::hash_a, S);
+		if (S[0] == 0xee9398aadb67f03d and S[1] == 0x8bb21831c60f1002 and S[2] == 0xb48a92db98d5da62 and S[3] == 0x43189921b8f8e3e8 and S[4] == 0x348fa5c9d525e140) {
+			// std::cout << "初始化成功" << std::endl;
+		}
+		
+		// 哈希过程吸收数据
+		ascon_padding M;
+		Asconv12::padding(message, M);
+		for (int i = 0; i < M.size() - 1; i++) {
+			S[0] ^= M[i];
+			Asconv12::permutations(Asconv12::hash_b, S);
+		}
+		S[0] ^= M.back();
+
+		// 哈希过程压缩数据
+		if (!hashVal.empty()) hashVal.clear();
+		int size_of_out = Asconv12::hash_length % Asconv12::r == 0 ? Asconv12::hash_length / Asconv12::r : Asconv12::hash_length / Asconv12::r + 1;
+		hashVal.resize(size_of_out);
+
+		Asconv12::permutations(Asconv12::hash_a, S);
+		for (int i = 0; i < hashVal.size(); ++i) {
+			hashVal[i] = S[0];
+			Asconv12::permutations(Asconv12::hash_b, S);
+		}
+		ascon_64 tmp = 0xffffffffffffffff;
+		for (int i = 0; i < (Asconv12::hash_length % Asconv12::r); ++i) {
+			tmp <<= 1;
+		}
+		hashVal[hashVal.size() - 1] &= tmp;
 	}
 
 	// 初始化

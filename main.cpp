@@ -19,6 +19,15 @@ void show_ascon128(const char* info, const ascon_128& d) {
 	cout << endl;
 }
 
+void show_asconhash(const char* info, const ascon_hash& d) {
+	cout << info << " = ";
+	for (auto& n : d) {
+		cout << hex << n;
+		//printf_s("%X", d);
+	}
+	cout << endl;
+}
+
 void test_encryption(ascon_data& c, ascon_128& T) {
 	ascon_128 keys(0, 0);
 	ascon_128 nonce(0, 0);
@@ -42,6 +51,14 @@ void test_decryption(ascon_data& ciphertext, ascon_128& T) {
 	cout << flag<< endl;
 }
 
+void test_hash() {
+	ascon_data msg = { 0x61, 0x73, 0x63, 0x6f, 0x6e };
+	ascon_hash hash;
+	Asconv12::hash(msg, hash);
+	show_ascondata("msg", msg);
+	show_asconhash("hash", hash);
+}
+
 int main() {
 	cout << "hello world" << endl;
 	ascon_data c;
@@ -51,5 +68,8 @@ int main() {
 	show_ascon128("T", T);
 	cout << "================ ÏÂÃæ½âÃÜ ===================" << endl;
 	test_decryption(c, T);
+
+	cout << "================ ²âÊÔ¹þÏ£ ===================" << endl;
+	test_hash();
 	return 0;
 }
