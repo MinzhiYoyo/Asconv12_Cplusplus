@@ -31,8 +31,8 @@ void show_asconhash(const char* info, const ascon_hash& d) {
 void test_encryption(ascon_data& c, ascon_128& T) {
 	ascon_128 keys(0, 0);
 	ascon_128 nonce(0, 0);
-	ascon_data a = { 0x41, 0x53, 0x43, 0x4f, 0x4e };
-	ascon_data m = { 0x61, 0x73, 0x63, 0x6f, 0x6e };
+	ascon_data a = { };
+	ascon_data m = { 0x61, 0x73, 0x63, 0x6f, 0x6e, 0x61, 0x73 };
 	show_ascon128("k", keys);
 	show_ascon128("n", nonce);
 	show_ascondata("a", a);
@@ -44,15 +44,16 @@ void test_decryption(ascon_data& ciphertext, ascon_128& T) {
 	ascon_128 keys(0, 0);
 	ascon_128 nonce(0, 0);
 	ascon_data p;
-	ascon_data a = { 0x41, 0x53, 0x43, 0x4f, 0x4e };
+	ascon_data a = { };
 	bool flag = Asconv12::decryption(ciphertext, a, p, keys, nonce, T);
 	show_ascon128("后T", T);
 	show_ascondata("解密文", p);
-	cout << flag<< endl;
+	if (flag) cout << "成功解密" << endl;
+	else cout << "错误解密" << endl;
 }
 
 void test_hash() {
-	ascon_data msg = { 0x61, 0x73, 0x63, 0x6f, 0x6e };
+	ascon_data msg = {  };
 	ascon_hash hash;
 	Asconv12::hash(msg, hash);
 	show_ascondata("msg", msg);

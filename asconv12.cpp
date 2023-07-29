@@ -79,6 +79,7 @@ namespace ASCONV12 {
 		// 哈希过程吸收数据
 		ascon_padding M;
 		Asconv12::padding(message, M);
+		if (message.empty()) M = { 0x8000000000000000 };
 		for (int i = 0; i < M.size() - 1; i++) {
 			S[0] ^= M[i];
 			Asconv12::permutations(Asconv12::hash_b, S);
